@@ -1,0 +1,122 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  - url: http://localhost:8080/
+paths:
+  /brands:
+    get:
+      summary: Lấy danh sách brands
+      description: Lấy danh sách thương hiệu với khả năng phân trang và sắp xếp theo một trường
+      parameters:
+        - name: params
+          in: query
+          description: page params
+          required: false
+          schema:
+            $ref: '#/components/schemas/PageRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/ApiResponse'
+                type: object
+                properties:
+                  data:
+                    allOf:
+                      - $ref: '#components/schemas/BasePaginatedResponse'
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#components/schemas/Brand'
+              example:
+                code: "SUCCESS"
+                message: "GET SUCCESS"      
+                data:
+                  totalItems: 100
+                  totalPages: 10
+                  items:
+                    - uid: "1234-24123-421412-124124"
+                      name: "Samsung"
+                      photoUrl: null
+                      createAt: "2023-03-10T09:00:00Z"
+                    - uid: "1234-24123-421412-21312"
+                      name: "Apple"
+                      photoUrl: null
+                      createAt: "2023-03-10T09:00:00Z"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/ApiResponse'
+                example:
+                  code: "BAD_REQUEST"
+                  message: order field is not exists
+
+components:
+  schemas:
+    PageRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+          description: current page  
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          default: 1
+          description: items per page
+        sort:
+          type: string
+          description: sort by field
+        direction:
+          enum:
+            - ASC
+            - DESC
+          type: string
+          description: sort direction ASC | DESC
+      example:
+        page: 1
+        size: 10
+        sort: "name"
+        direction: "ASC"
+    BasePaginatedResponse:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          description: all of items
+        totalPages:
+          type: integer
+          description: all of pages
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    Brand:
+      type: object
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        photoUrl:
+          type: string
+        createAt:
+          type: string
